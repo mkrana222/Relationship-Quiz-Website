@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Relationship Quiz with Teddy Bear GIFs</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #eef2f7;
+        padding: 1.5rem;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        box-sizing: border-box;
+      }
+      h2 {
+        color: #6a0dad;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+      .question-box {
+        background: #f3e6fc;
+        border: 2px solid #9a4edd;
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin: 12px 0;
+        width: 100%;
+        max-width: 400px;
+        box-sizing: border-box;
+      }
+      .question-text {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+      }
+      .options label {
+        display: flex;
+        align-items: center;
+        margin-bottom: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: color 0.2s;
+      }
+      .options label:hover {
+        color: #4b0082;
+      }
+      input[type="radio"] {
+        margin-right: 8px;
+        cursor: pointer;
+      }
+      button {
+        padding: 10px 24px;
+        background-color: #6a0dad;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        margin-top: 16px;
+        width: 100%;
+        max-width: 400px;
+      }
+      button:hover {
+        background-color: #4b0082;
+      }
+
+      /* Modal Styles */
+      #popupContainer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        background: rgba(0, 0, 0, 0.4);
+      }
+      #popup {
+        background: #fff;
+        padding: 2rem 2.5rem;
+        border-radius: 14px;
+        max-width: 85%;
+        box-shadow: 0 0 10px #a453f0, 0 0 25px #a453f0a0, 0 0 40px #a453f0bf;
+        text-align: center;
+        position: relative;
+        color: #4b0082;
+        font-size: 1.3rem;
+        font-weight: 700;
+      }
+      #popup img {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 1rem;
+        border-radius: 12px;
+        object-fit: contain;
+      }
+      #popup button.close-btn {
+        position: absolute;
+        top: 10px;
+        right: 14px;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #6a0dad;
+        cursor: pointer;
+        transition: color 0.3s ease;
+      }
+      #popup button.close-btn:hover {
+        color: #4b0082;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Let’s Play Our Relationship Quiz!</h2>
+
+    <div class="question-box" id="q1">
+      <div class="question-text">💜 How did I ask for your mobile number?</div>
+      <div class="options">
+        <label><input type="radio" name="q1" value="a" /> Directly</label>
+        <label><input type="radio" name="q1" value="b" /> By handwritten note</label>
+        <label><input type="radio" name="q1" value="c" /> Through your colleague</label>
+        <label><input type="radio" name="q1" value="d" /> At the office</label>
+      </div>
+    </div>
+
+    <div class="question-box" id="q2">
+      <div class="question-text">💕 What did we do on our first meeting?</div>
+      <div class="options">
+        <label><input type="radio" name="q2" value="a" /> Roamed around the city</label>
+        <label><input type="radio" name="q2" value="b" /> Drank coffee together</label>
+        <label><input type="radio" name="q2" value="c" /> Watched a movie</label>
+        <label><input type="radio" name="q2" value="d" /> Had dinner</label>
+      </div>
+    </div>
+
+    <div class="question-box" id="q3">
+      <div class="question-text">🌟 Where did we share our first kiss?</div>
+      <div class="options">
+        <label><input type="radio" name="q3" value="a" /> At the park</label>
+        <label><input type="radio" name="q3" value="b" /> At the movies</label>
+        <label><input type="radio" name="q3" value="c" /> At the office</label>
+        <label><input type="radio" name="q3" value="d" /> At a restaurant</label>
+      </div>
+    </div>
+
+    <button onclick="submitQuiz()">Submit Answers</button>
+
+    <div id="popupContainer">
+      <div id="popup">
+        <button class="close-btn" onclick="closePopup()" aria-label="Close">&times;</button>
+        <img id="response-gif" src="" alt="Response GIF" />
+        <div id="popupMessage"></div>
+      </div>
+    </div>
+
+    <script>
+      const correctAnswers = {
+        q1: "b",
+        q2: "a",
+        q3: "b",
+      };
+
+      const gifs = {
+        success:
+          "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExem85cXl4M3RkbjZ6ZTltd3U2NmF6NGM0ZGUwNHFsMmk3MTV1NGdneSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/NxC8VtyxqhMtpLoEEN/giphy.gif", // kissing teddy bear
+        fail: "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExOXdlcWRnNTAybjh5N3RyN2c1aDdkZ2YwYm10aWpxdXZsY2hjem14ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/q9H9Y56MoQY966EXsE/giphy.gif", // annoyed cute teddy bear
+      };
+
+      function submitQuiz() {
+        const q1 = document.querySelector('input[name="q1"]:checked');
+        const q2 = document.querySelector('input[name="q2"]:checked');
+        const q3 = document.querySelector('input[name="q3"]:checked');
+
+        if (!q1 || !q2 || !q3) {
+          alert("Please answer all questions before submitting!");
+          return;
+        }
+
+        let score = 0;
+        if (q1.value === correctAnswers.q1) score++;
+        if (q2.value === correctAnswers.q2) score++;
+        if (q3.value === correctAnswers.q3) score++;
+
+        let message = "";
+        let gifUrl = "";
+
+        if (score === 3) {
+          message = "🎉 Amazing Baby You Remember Everything 💖";
+          gifUrl = gifs.success;
+        } else {
+          message = "Rhne Do Pagal 💕";
+          gifUrl = gifs.fail;
+        }
+
+        showPopup(message, gifUrl);
+      }
+
+      function showPopup(message, gifUrl) {
+        const popupContainer = document.getElementById("popupContainer");
+        const popupMessage = document.getElementById("popupMessage");
+        const responseGif = document.getElementById("response-gif");
+
+        popupMessage.textContent = message;
+        responseGif.src = gifUrl;
+        responseGif.alt = message;
+
+        popupContainer.style.display = "flex";
+      }
+
+      function closePopup() {
+        document.getElementById("popupContainer").style.display = "none";
+      }
+
+      window.onclick = function (event) {
+        const popupContainer = document.getElementById("popupContainer");
+        if (event.target === popupContainer) {
+          closePopup();
+        }
+      };
+    </script>
+  </body>
+</html>
